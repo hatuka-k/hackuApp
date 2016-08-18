@@ -87,11 +87,11 @@ public class BusinessCardsDetailFragment extends Fragment {
                 text += "会社名: "+ mItem.company+"\n\n";
 
             }
-            if(mItem.depart != null) {
+            if(mItem.company != null) {
                 text += "部署: "+ mItem.depart+"\n\n";
 
             }
-            if(mItem.posit != null) {
+            if(mItem.company != null) {
                 text += "役職: "+ mItem.posit+"\n\n";
 
             }

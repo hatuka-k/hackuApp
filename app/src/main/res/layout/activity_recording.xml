@@ -40,7 +40,24 @@
         android:layout_height="wrap_content"
         android:text="声を識別"
         android:id="@+id/check_button"
+        android:layout_below="@+id/new_button"
+        android:layout_toStartOf="@+id/list_button"
+        android:layout_marginTop="39dp" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="新規作成"
+        android:id="@+id/newCard_button"
         android:layout_alignTop="@+id/new_button"
         android:layout_toEndOf="@+id/new_button" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="照合"
+        android:id="@+id/list_button"
+        android:layout_alignTop="@+id/check_button"
+        android:layout_alignStart="@+id/newCard_button" />
 
 </RelativeLayout>

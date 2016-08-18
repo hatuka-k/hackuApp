@@ -23,7 +23,7 @@ public class WavRec extends Activity{
     boolean bIsRecording = false;
     int bufSize;
     private String fileName=null;
-
+    
     public WavRec(int sampling,String fileName){
         this.SAMPLING_RATE=sampling;
         this.fileName="/"+fileName;
@@ -49,7 +49,7 @@ public class WavRec extends Activity{
                 AudioFormat.CHANNEL_IN_MONO,
                 AudioFormat.ENCODING_PCM_16BIT,
                 bufSize * 2);//２倍にしないと処理落ちするらしい。
-
+        
     }
     public void rec_start(){
         bIsRecording = true;
@@ -103,8 +103,8 @@ public class WavRec extends Activity{
                 }
             }).start();
         }catch(Exception e){
-            Log.d("error",e.toString());
-            Log.d("error",e.getMessage());
+           Log.d("error",e.toString());
+           Log.d("error",e.getMessage());
         }
     }
     public void rec_stop(){
@@ -112,8 +112,8 @@ public class WavRec extends Activity{
             bIsRecording = false;
         }
     }
-
-
+    
+    
     public void convert(){
         try{
             // 録音したファイル
@@ -145,7 +145,7 @@ public class WavRec extends Activity{
         }catch(Exception e){
             System.out.println("convert miss");
         }
-
+        
     }
     public static byte[] createHeader(int sampleRate, int datasize) {
         byte[] byteRIFF = {'R', 'I', 'F', 'F'};
@@ -190,6 +190,6 @@ public class WavRec extends Activity{
         bt[3] = (byte) ((value & 0xff000000) >> 24);
         return bt;
     }
-
-
+    
+    
 }
