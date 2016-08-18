@@ -9,7 +9,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
@@ -18,7 +17,6 @@ import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ByteArrayEntity;
-import org.apache.http.entity.FileEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
@@ -26,9 +24,7 @@ import org.json.JSONObject;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.io.File;
@@ -54,7 +50,7 @@ public class HttpPostTask extends AsyncTask<Void, Void, Void> {
     private String http_err_msg = null;
     private ProgressDialog dialog;
     public String http_ret_msg = null;
-//    private ProgressDialog dialog = null;
+    //    private ProgressDialog dialog = null;
     public String result=null;
     private int status=0;
     private String post="";
@@ -89,15 +85,15 @@ public class HttpPostTask extends AsyncTask<Void, Void, Void> {
         this.fileName="/"+fileName;
     }
     public void setPost(String post){this.post=post;}
-  /* --------------------- 処理本体 --------------------- */
-  private JSONObject getJSON(String text){
-      try {
-          JSONObject jsonObj = new JSONObject(text);
-          return jsonObj;
-      }catch(Exception e){
-          return null;
-      }
-  }
+    /* --------------------- 処理本体 --------------------- */
+    private JSONObject getJSON(String text){
+        try {
+            JSONObject jsonObj = new JSONObject(text);
+            return jsonObj;
+        }catch(Exception e){
+            return null;
+        }
+    }
 
     // タスク開始時
     protected void onPreExecute(){
@@ -105,7 +101,7 @@ public class HttpPostTask extends AsyncTask<Void, Void, Void> {
         dialog = new ProgressDialog( parent_activity );
         dialog.setMessage("通信中・・・");
         dialog.show();
-        Log.d("posttest","pre execute");
+//        Log.d("posttest","pre execute");
         // レスポンスハンドラを生成
         response_handler = new ResponseHandler<Void>() {
 
@@ -113,10 +109,10 @@ public class HttpPostTask extends AsyncTask<Void, Void, Void> {
             @Override
             public Void handleResponse(HttpResponse response) throws IOException
             {
-                Log.d(
-                        "posttest",
-                        "レスポンスコード：" + response.getStatusLine().getStatusCode()
-                );
+//                Log.d(
+//                        "posttest",
+//                        "レスポンスコード：" + response.getStatusLine().getStatusCode()
+//                );
                 // 正常に受信できた場合は200
                 switch (response.getStatusLine().getStatusCode()) {
                     case HttpStatus.SC_OK:
@@ -128,12 +124,12 @@ public class HttpPostTask extends AsyncTask<Void, Void, Void> {
                                 response.getEntity(),
                                 HttpPostTask.this.response_encoding
                         );
-                        Log.d("test",HttpPostTask.this.http_ret_msg);
+//                        Log.d("test",HttpPostTask.this.http_ret_msg);
 
-                        if( HttpPostTask.this.http_ret_msg==null){
-                            System.out.println("miss?");
-                        }
-                    break;
+//                        if( HttpPostTask.this.http_ret_msg==null){
+//                            System.out.println("miss?");
+//                        }
+                        break;
                     case HttpStatus.SC_ACCEPTED:
                         Log.d("posttest","202");
                         HttpPostTask.this.http_ret_msg = EntityUtils.toString(
@@ -141,9 +137,9 @@ public class HttpPostTask extends AsyncTask<Void, Void, Void> {
                                 HttpPostTask.this.response_encoding
                         );
                         HttpPostTask.this.http_ret_msg =(response.getHeaders("Operation-Location")[0].getValue());
-                        if( HttpPostTask.this.http_ret_msg==null){
-                            System.out.println("miss?2");
-                        }
+//                        if( HttpPostTask.this.http_ret_msg==null){
+//                            System.out.println("miss?2");
+//                        }
                         try{
                             result=(response.getHeaders("Operation-Location")[0].getValue());
                         }catch(Exception e){
@@ -165,8 +161,8 @@ public class HttpPostTask extends AsyncTask<Void, Void, Void> {
 
         };
     }
-    
-    
+
+
     private byte[] getFile(String fileName){
         try{
             File file=new File(fileName);
@@ -180,7 +176,7 @@ public class HttpPostTask extends AsyncTask<Void, Void, Void> {
             return null;
         }
     }
-    
+
     private void postRequest(){
         HttpClient httpclient=new DefaultHttpClient();
         try{
@@ -205,29 +201,29 @@ public class HttpPostTask extends AsyncTask<Void, Void, Void> {
                 httpGet.setHeader(p.getName(),p.getValue());
             httpClient.execute(httpGet,response_handler);
         }catch(Exception e){
-            
+
         }
-        
+
     }
-    
+
     private void identification(){
         try{
             postRequest();
             result=http_ret_msg;
             post_url=result;
             Thread.sleep(2000);
-            Log.d("newurl",post_url);
+//            Log.d("newurl",post_url);
             getRequest();
         }catch(Exception e){
-            
+
         }
         Log.d("identification","end");
-        
+
     }
     private void enroll(){
         postRequest();
-        
-        
+
+
     }
 
     private void newacount(){
@@ -240,7 +236,7 @@ public class HttpPostTask extends AsyncTask<Void, Void, Void> {
                 request.setHeader(p.getName(),p.getValue());
             request.setEntity(new ByteArrayEntity("{'locale':'en-US'}".getBytes()));
             httpclient.execute(request,response_handler);
-            System.out.println();
+//            System.out.println();
         }catch(Exception e){
             Log.d("error",e.toString());
             Log.d("error",e.getMessage());
@@ -274,12 +270,12 @@ public class HttpPostTask extends AsyncTask<Void, Void, Void> {
     // タスク終了時
     protected void onPostExecute(Void unused) {
         // ダイアログを消す
-        Log.d("request","request end");
+//        Log.d("request","request end");
         dialog.dismiss();
         // 受信結果をUIに渡すためにまとめる
         Message message = new Message();
         Bundle bundle = new Bundle();
-        
+
         if (http_err_msg != null) {
             // エラー発生時
             bundle.putBoolean("http_post_success", false);

@@ -6,7 +6,6 @@ package com.example.admin.hackuapp;
 
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 
 /**
  * HTTP通信のPOSTタスク完了時に，通信の成否に応じて，受信した通信内容をUI上で取り扱うための抽象クラス。
@@ -23,12 +22,12 @@ public abstract class HttpPostHandler extends Handler {
         if( isPostSuccess )
         {
             String http_type=msg.getData().getString("http_type").toString();
-            Log.d("http_type",http_type);
+//            Log.d("http_type",http_type);
             if(http_type.equals("identification")){
                 onIdentCompleted(http_response);
             }else if(http_type.equals("enroll")){
                 onPostCompleted( http_response );
-                
+
             }else if(http_type.equals("new")){
                 onNewCompleted(http_response);
             }
