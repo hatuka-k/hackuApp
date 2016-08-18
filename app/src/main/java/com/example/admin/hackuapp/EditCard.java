@@ -149,7 +149,7 @@ public class EditCard extends AppCompatActivity {
         values.put(ContactsContract.CommonDataKinds.Organization.TITLE, ePosit.getText().toString());
         getContentResolver().insert(positUri, values);
 
-        return String.valueOf(rawContactId+1);
+        return String.valueOf(rawContactId);
     }
 
     private void requestDBPermission(){

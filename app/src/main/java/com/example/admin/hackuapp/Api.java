@@ -4,12 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.View;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import org.apache.http.client.methods.HttpPost;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -29,6 +24,7 @@ public class Api extends AppCompatActivity {
     private boolean post=false;
     public List<String> result=new ArrayList<String>();
     private Intent intent;
+    public HttpPostHandler handler=null;
     
     Api(Activity ac){
         this.ac=ac;
@@ -69,7 +65,7 @@ public class Api extends AppCompatActivity {
             }
         }
         uri+="shortAudio=true";
-        Log.d("uri result",uri);
+//        Log.d("uri result",uri);
         return uri;
     }
     private JSONObject getJSON(String text){
@@ -92,66 +88,7 @@ public class Api extends AppCompatActivity {
                 ac,makeUri(url,count),
 
                 // タスク完了時に呼ばれるUIのハンドラ
-                new HttpPostHandler(){
-                    public void onIdentCompleted(String response) {
-                        // 受信結果をUIに表示
-                        JSONObject r=getJSON(response);
-                        Log.d("test","tets");
-                        try{
-                            System.out.println(r.get("processingResult"));
-                            Object pr=r.get("processingResult");
-                            if(pr instanceof JSONObject){
-                                result.add(((JSONObject)pr).getString("identifiedProfileId"));
-                            }
-                            System.out.println(result.toString());
-                        }catch(Exception e){
-                            System.out.println("error "+e.toString());
-                            
-                        }
-
-                        String str="";
-                        for(int i=0;i<result.size();i++){
-                            str+=result.get(i)+"\n";
-                        }
-                        System.out.println(str);
-                    }
-                    @Override
-                    public void onNewCompleted(String response) {
-                        // 受信結果をUIに表示
-                        result.clear();
-                        JSONObject r=getJSON(response);
-                        String pr="";
-                        try{
-                            pr=r.getString("identificationProfileId");
-                            result.add(pr);
-
-                            //intent.setClassName("com.example.admin.hackuapp", "com.example.admin.hackuapp.EditCard");
-                            //intent.putExtra("profileId", result.get(0));
-                            //startActivity(intent);
-
-                            System.out.println(pr);
-                        }catch(Exception e){
-                            System.out.println("error "+e.toString());
-                        }
-                        enroll("https://api.projectoxford.ai/spid/v1.0/identificationProfiles/"+pr+"/enroll");
-                    }
-                    @Override
-                    public void onPostCompleted(String response) {
-                        // 受信結果をUIに表示
-
-                        
-                    }
-
-                    @Override
-                    public void onPostFailed(String response) {
-
-                        Toast.makeText(
-                                ac.getApplicationContext(),
-                                "エラーが発生しました。",
-                                Toast.LENGTH_LONG
-                        ).show();
-                    }
-                }
+                handler
         );
     }
     
@@ -159,8 +96,8 @@ public class Api extends AppCompatActivity {
     public void enroll(String url) {
         // 非同期タスクを定義
         this.url=url;
-        Log.d("enroll","miss");
-        Log.d("connection",url);
+//        Log.d("enroll","miss");
+//        Log.d("connection",url);
         HttpPostTask task = request();
         task.addPostHeader("Ocp-Apim-Subscription-Key",this.subkey);
         task.addPostHeader("Content-Type","application/octet-stream");
@@ -168,7 +105,7 @@ public class Api extends AppCompatActivity {
         task.setfileName(fileName);
         // タスクを開始
         task.execute();
-        System.out.println("task start");
+//        System.out.println("task start");
         
     }
     /*
@@ -193,7 +130,7 @@ public class Api extends AppCompatActivity {
 
     }
 
-    public void identification()throws Exception{
+    public void identification(){
         
         List confidence=new ArrayList();
         String result;
