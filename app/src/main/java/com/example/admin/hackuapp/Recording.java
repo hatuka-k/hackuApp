@@ -62,7 +62,7 @@ public class Recording extends AppCompatActivity {
             public void onClick(View v) {
                 // クリック時の処理
 //                wr.convert();
-                api.setSubkey("705b6408172b465ebe0579742f062214");
+                api.setSubkey("");
                 api.setFileName("rec.wav");
                 api.handler=new HttpPostHandler(){
                     public void onIdentCompleted(String response) {

@@ -29,6 +29,7 @@ import android.widget.Toast;
 
 import com.example.admin.hackuapp.dummy.DummyContent;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -48,6 +49,8 @@ public class BusinessCardsListActivity extends AppCompatActivity {
     private boolean mTwoPane;
     public static final int NEW_ITEM = 0;
     private PhoneBookContent pbContent;
+
+    private int MY_PERMISSIONS_REQUEST = 1;
 
     private DBAccesser dba;
 
@@ -73,13 +76,7 @@ public class BusinessCardsListActivity extends AppCompatActivity {
             });
         }
 
-        requestDBPermission();
-
-        dba = new DBAccesser(this);
-
-        View recyclerView = findViewById(R.id.businesscards_list);
-        assert recyclerView != null;
-        setupRecyclerView((RecyclerView) recyclerView);
+        checkDBPermission();
 
         if (findViewById(R.id.businesscards_detail_container) != null) {
             // The detail container view will be present only in the
@@ -112,9 +109,12 @@ public class BusinessCardsListActivity extends AppCompatActivity {
     }
     */
 
-    private void requestDBPermission(){
+    private void checkDBPermission(){
         // Here, thisActivity is the current activity
-        int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 1;
+        boolean success = true;
+
+        List<String> permissions = new ArrayList<String>();
+        int i = 0;
 
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.READ_CONTACTS)
@@ -123,22 +123,9 @@ public class BusinessCardsListActivity extends AppCompatActivity {
             // Should we show an explanation?
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                     Manifest.permission.READ_CONTACTS)) {
-
-                // Show an expanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
-
             } else {
-
-                // No explanation needed, we can request the permission.
-
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.READ_CONTACTS},
-                        MY_PERMISSIONS_REQUEST_READ_CONTACTS);
-
-                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
-                // app-defined int constant. The callback method gets the
-                // result of the request.
+                permissions.add(Manifest.permission.READ_CONTACTS);
+                success = false;
             }
         }
 
@@ -149,206 +136,69 @@ public class BusinessCardsListActivity extends AppCompatActivity {
             // Should we show an explanation?
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                     Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-
-                // Show an expanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
-
-            } else {
-
-                // No explanation needed, we can request the permission.
-
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                        MY_PERMISSIONS_REQUEST_READ_CONTACTS);
-
-                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
-                // app-defined int constant. The callback method gets the
-                // result of the request.
+            } else{
+                permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                success = false;
             }
+        }
+
+        if(success) {
+            dba = new DBAccesser(this);
+            pbContent = new PhoneBookContent(this);
+
+            View recyclerView = findViewById(R.id.businesscards_list);
+            assert recyclerView != null;
+
+            setupRecyclerView((RecyclerView) recyclerView);
+        } else {
+            ActivityCompat.requestPermissions(this,
+                    (String[])permissions.toArray(new String[0]),
+                    MY_PERMISSIONS_REQUEST);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults){
+        if(requestCode != MY_PERMISSIONS_REQUEST){
+            return;
+        }
+
+        boolean success = true;
+
+        for(int i = 0; i < permissions.length; i++){
+            if(grantResults[i] == PackageManager.PERMISSION_GRANTED){
+            }else{
+                success = false;
+            }
+        }
+        if(success) {
+            pbContent = new PhoneBookContent(this);
+            dba = new DBAccesser(this);
+
+            View recyclerView = findViewById(R.id.businesscards_list);
+            assert recyclerView != null;
+
+            setupRecyclerView((RecyclerView) recyclerView);
         }
     }
 
 
     private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
+        DBLine[] dbLines = dba.getAll();
+        if(dbLines != null) {
+            for(DBLine row : dba.getAll()) {
+                pbContent.addItem(new PhoneBookContent.PhoneBookItem(
+                        row.BOOK_ID,
+                        pbContent.getDisplayName(row.BOOK_ID),
+                        pbContent.getPhoneNumber(row.BOOK_ID),
+                        pbContent.getEmailAddress(row.BOOK_ID),
+                        pbContent.getCompany(row.BOOK_ID),
+                        row.MEMO
 
-        pbContent = new PhoneBookContent();
-
-        Cursor content_c = getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, new String[]{
-                ContactsContract.Contacts._ID,
-                ContactsContract.Contacts.DISPLAY_NAME,}, null, null,null);
-
-
-        if (content_c != null && content_c.getCount() > 0){
-            try {
-                content_c.moveToFirst();
-
-
-                DBLine[] dbLines = dba.getAll();
-                if(dbLines != null) {
-                    for(DBLine row : dba.getAll()) {
-                        pbContent.addItem(new PhoneBookContent.PhoneBookItem(
-                                row.BOOK_ID,
-                                getDisplayName(row.BOOK_ID),
-                                getPhoneNumber(row.BOOK_ID),
-                                getEmailAddress(row.BOOK_ID),
-                                getCompany(row.BOOK_ID),
-                                getDepart(row.BOOK_ID),
-                                getPosit(row.BOOK_ID)
-
-                        ));
-                    }
-                }
-
-
-//                do {
-//
-//                    pbContent.addItem(new PhoneBookContent.PhoneBookItem(
-//                            content_c.getString(0),
-//                            getDisplayName(content_c.getString(0)),
-//                            getPhoneNumber(content_c.getString(0)),
-//                            getEmailAddress(content_c.getString(0)),
-////                            c.getString(c.getColumnIndex(ContactsContract.CommonDataKinds.Organization.COMPANY)) + " " +
-////                                    c.getString(c.getColumnIndex(ContactsContract.CommonDataKinds.Organization.DEPARTMENT)) + " " +
-////                                    c.getString(c.getColumnIndex(ContactsContract.CommonDataKinds.Organization.COMPANY))
-//                            getCompany(content_c.getString(0)),
-//                            getDepart(content_c.getString(0)),
-//                            getPosit(content_c.getString(0))
-//                    ));
-//                } while (content_c.moveToNext());
-            } catch (Exception e){
-                e.printStackTrace();
-            } finally{
-                content_c.close();
+                ));
             }
         }
-
-
         recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(pbContent.getItems()));
-    }
-
-    private String getDisplayName(String id){
-        String name = "";
-        Cursor c = getContentResolver().query(
-                ContactsContract.Contacts.CONTENT_URI,
-                new String[]{ContactsContract.Contacts.DISPLAY_NAME},
-                ContactsContract.Contacts._ID + "=" + id,
-                null,
-                null
-        );
-        if(c != null && c.getCount() > 0){
-            try {
-                c.moveToFirst();
-                do {
-                    name += c.getString(c.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME)) + " ";
-                } while (c.moveToNext());
-            } catch (Exception e){
-                e.printStackTrace();
-            } finally {
-                c.close();
-            }
-            c.close();
-        }
-
-        return name;
-    }
-
-    private String getPhoneNumber(String id){
-        String phones = "";
-        Cursor c = getContentResolver().query(
-                ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                new String[]{ContactsContract.CommonDataKinds.Phone.NUMBER},
-                ContactsContract.CommonDataKinds.Phone.CONTACT_ID + "=" + id,
-                null,
-                null
-        );
-        if(c != null && c.getCount() > 0){
-            try {
-                c.moveToFirst();
-                do {
-                    phones += c.getString(c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)) + " ";
-                } while (c.moveToNext());
-            } catch (Exception e){
-                e.printStackTrace();
-            } finally {
-                c.close();
-            }
-            c.close();
-        }
-
-        return phones;
-    }
-
-    private String getEmailAddress(String id){
-        String addresses = "";
-        Cursor c = getContentResolver().query(
-                ContactsContract.CommonDataKinds.Email.CONTENT_URI,
-                new String[]{ContactsContract.CommonDataKinds.Email.ADDRESS},
-                ContactsContract.CommonDataKinds.Email.CONTACT_ID + "=" + id,
-                null,
-                null
-        );
-        if (c != null && c.getCount() > 0) {
-            try {
-                c.moveToFirst();
-                do {
-                    addresses += c.getString(c.getColumnIndex(ContactsContract.CommonDataKinds.Email.ADDRESS)) + " ";
-                } while (c.moveToNext());
-            }catch(Exception e){
-                e.printStackTrace();
-            }finally{
-                c.close();
-            }
-        }
-        return addresses;
-    }
-
-    private String getCompany(String id){
-        String result = null;
-
-        String orgWhere = ContactsContract.Data.CONTACT_ID + " = ? AND " + ContactsContract.Data.MIMETYPE + " = ?";
-        String[] orgWhereParams = new String[]{id,
-                ContactsContract.CommonDataKinds.Organization.CONTENT_ITEM_TYPE};
-        Cursor orgCur = getContentResolver().query(ContactsContract.Data.CONTENT_URI,
-                null, orgWhere, orgWhereParams, null);
-        if(orgCur.moveToFirst()) {
-            result = orgCur.getString(orgCur.getColumnIndex(ContactsContract.CommonDataKinds.Organization.DATA));
-            orgCur.close();
-        }
-
-        return result;
-    }
-
-    private String getDepart(String id){
-        String result = null;
-
-        String orgWhere = ContactsContract.Data.CONTACT_ID + " = ? AND " + ContactsContract.Data.MIMETYPE + " = ?";
-        String[] orgWhereParams = new String[]{id,
-                ContactsContract.CommonDataKinds.Organization.CONTENT_ITEM_TYPE};
-        Cursor orgCur = getContentResolver().query(ContactsContract.Data.CONTENT_URI,
-                null, orgWhere, orgWhereParams, null);
-        if(orgCur.moveToFirst()) {
-            result = orgCur.getString(orgCur.getColumnIndex(ContactsContract.CommonDataKinds.Organization.DEPARTMENT));
-            orgCur.close();
-        }
-
-        return result;
-    }
-
-    private String getPosit(String id){
-        String result = null;
-
-        String orgWhere = ContactsContract.Data.CONTACT_ID + " = ? AND " + ContactsContract.Data.MIMETYPE + " = ?";
-        String[] orgWhereParams = new String[]{id,
-                ContactsContract.CommonDataKinds.Organization.CONTENT_ITEM_TYPE};
-        Cursor orgCur = getContentResolver().query(ContactsContract.Data.CONTENT_URI,
-                null, orgWhere, orgWhereParams, null);
-        if(orgCur.moveToFirst()) {
-            result = orgCur.getString(orgCur.getColumnIndex(ContactsContract.CommonDataKinds.Organization.TITLE));
-            orgCur.close();
-        }
-
-        return result;
     }
 
 

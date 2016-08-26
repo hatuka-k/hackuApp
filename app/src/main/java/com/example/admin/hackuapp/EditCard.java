@@ -29,8 +29,7 @@ public class EditCard extends AppCompatActivity {
     private EditText ePhone;
     private EditText eEmail;
     private EditText eCompany;
-    private EditText eDepart;
-    private EditText ePosit;
+    private EditText eMemo;
 
     private DBAccesser dba;
 
@@ -54,32 +53,23 @@ public class EditCard extends AppCompatActivity {
         ePhone = (EditText)findViewById(R.id.editPhone);
         eEmail = (EditText)findViewById(R.id.editEmail);
         eCompany = (EditText)findViewById(R.id.editCompany);
-        eDepart = (EditText)findViewById(R.id.editDepart);
-        ePosit = (EditText)findViewById(R.id.editPosit);
+        eMemo = (EditText)findViewById(R.id.editMemo);
 
         //値の受け取り
         Intent intent = getIntent();
+        ID = intent.getStringExtra( "oldId" );
         String oldName = intent.getStringExtra( "oldName" );
         String oldPhone = intent.getStringExtra( "oldPhone" );
         String oldEmail = intent.getStringExtra( "oldEmail" );
         String oldComp = intent.getStringExtra( "oldComp" );
-        String oldDep = intent.getStringExtra( "oldDep" );
-        String oldPos = intent.getStringExtra( "oldPos" );
-
+        String oldMemo = intent.getStringExtra( "oldMemo" );
         profileId = intent.getStringExtra( "profileId" );
 
-        EditText input = (EditText)this.findViewById(R.id.editName);
-        input.setText(oldName);
-        input = (EditText)this.findViewById(R.id.editPhone);
-        input.setText(oldPhone);
-        input = (EditText)this.findViewById(R.id.editEmail);
-        input.setText(oldEmail);
-        input = (EditText)this.findViewById(R.id.editCompany);
-        input.setText(oldComp);
-        input = (EditText)this.findViewById(R.id.editDepart);
-        input.setText(oldDep);
-        input = (EditText)this.findViewById(R.id.editPosit);
-        input.setText(oldPos);
+        eName.setText(oldName);
+        ePhone.setText(oldPhone);
+        eEmail.setText(oldEmail);
+        eCompany.setText(oldComp);
+        eMemo.setText(oldMemo);
     }
 
     public void bookRegistration(View view) throws AndroidException, OperationApplicationException {
@@ -87,7 +77,10 @@ public class EditCard extends AppCompatActivity {
             ID = addContact();
         }
 
-        dba.put(new DBLine(profileId, ID, ""));
+        if(dba.getBybook_id(ID) != null) {
+            dba.deleteByBook_id(ID);
+        }
+        dba.put(new DBLine(profileId, ID, eMemo.getText().toString()));
 
         System.out.println("INTENT_TO_LIST");
         Intent intent = new Intent();
@@ -132,22 +125,6 @@ public class EditCard extends AppCompatActivity {
         values.put(ContactsContract.Data.MIMETYPE, ContactsContract.CommonDataKinds.Organization.CONTENT_ITEM_TYPE);
         values.put(ContactsContract.CommonDataKinds.Organization.DATA, eCompany.getText().toString());
         getContentResolver().insert(companyUri, values);
-
-        // 部署を登録
-        Uri departUri = Uri.withAppendedPath(rawContactUri, ContactsContract.Contacts.Data.CONTENT_DIRECTORY);
-        values.clear();
-        values.put(ContactsContract.CommonDataKinds.Organization.TYPE, ContactsContract.CommonDataKinds.Organization.TYPE_WORK);
-        values.put(ContactsContract.Data.MIMETYPE, ContactsContract.CommonDataKinds.Organization.CONTENT_ITEM_TYPE);
-        values.put(ContactsContract.CommonDataKinds.Organization.DEPARTMENT, eDepart.getText().toString());
-        getContentResolver().insert(departUri, values);
-
-        // 役職を登録
-        Uri positUri = Uri.withAppendedPath(rawContactUri, ContactsContract.Contacts.Data.CONTENT_DIRECTORY);
-        values.clear();
-        values.put(ContactsContract.CommonDataKinds.Organization.TYPE, ContactsContract.CommonDataKinds.Organization.TYPE_WORK);
-        values.put(ContactsContract.Data.MIMETYPE, ContactsContract.CommonDataKinds.Organization.CONTENT_ITEM_TYPE);
-        values.put(ContactsContract.CommonDataKinds.Organization.TITLE, ePosit.getText().toString());
-        getContentResolver().insert(positUri, values);
 
         return String.valueOf(rawContactId);
     }
@@ -222,10 +199,6 @@ public class EditCard extends AppCompatActivity {
             input.setText(getEmailAddress(id));
             input = (EditText)this.findViewById(R.id.editCompany);
             input.setText(getCompany(id));
-            input = (EditText)this.findViewById(R.id.editDepart);
-            input.setText(getDepart(id));
-            input = (EditText)this.findViewById(R.id.editPosit);
-            input.setText(getPosit(id));
 
             cursor.close();
         }

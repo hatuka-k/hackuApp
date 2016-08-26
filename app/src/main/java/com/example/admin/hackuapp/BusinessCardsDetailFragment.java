@@ -61,12 +61,12 @@ public class BusinessCardsDetailFragment extends Fragment {
                 public void onClick(View view) {
                     Intent intent = new Intent();
                     intent.setClassName("com.example.admin.hackuapp", "com.example.admin.hackuapp.EditCard");
+                    intent.putExtra("oldId",mItem.id);
                     intent.putExtra("oldName",mItem.name);
                     intent.putExtra("oldPhone",mItem.phoneNumber);
                     intent.putExtra("oldEmail",mItem.email);
                     intent.putExtra("oldComp",mItem.company);
-                    intent.putExtra("oldDep",mItem.depart);
-                    intent.putExtra("oldPos",mItem.posit);
+                    intent.putExtra("oldMemo",mItem.memo);
 
                     startActivity(intent);
 
@@ -85,15 +85,9 @@ public class BusinessCardsDetailFragment extends Fragment {
         if (mItem != null) {
             if(mItem.company != null) {
                 text += "会社名: "+ mItem.company+"\n\n";
-
             }
-            if(mItem.depart != null) {
-                text += "部署: "+ mItem.depart+"\n\n";
-
-            }
-            if(mItem.posit != null) {
-                text += "役職: "+ mItem.posit+"\n\n";
-
+            if(mItem.memo != null) {
+                text += "メモ: "+ mItem.memo+"\n\n";
             }
             if(mItem.phoneNumber != null) {
                 text += "電話番号: "+ mItem.phoneNumber+"\n\n";
